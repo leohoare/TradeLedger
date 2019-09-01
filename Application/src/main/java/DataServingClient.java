@@ -26,6 +26,7 @@ public class DataServingClient {
     }
 
     public BasicDBObject GetSearchQuery(List<FilterObject> filtersList) {
+        // Incorrect -> should be using MongoDb Filters
         BasicDBObject searchQuery = new BasicDBObject();
         for (FilterObject filter : filtersList) {
             /*
@@ -35,6 +36,7 @@ public class DataServingClient {
              */
             if (filter.operator.equals("eq")) {
                 if ( filter.value != null) {
+                    // needs rework currently aggregates matches rather than filters
                     // Exact eq match - hack ~ time is only long data type - solved with object relation mapping
                     searchQuery.put(filter.attribute, filter.attribute.equals("time") ? new Long(filter.value) : filter.value);
                 } else {
