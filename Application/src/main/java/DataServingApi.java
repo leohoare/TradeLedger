@@ -14,15 +14,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BasicHttpServerExample {
+public class DataServingApi {
 
-    private static UserDataClient client = new UserDataClient();
+    private static DataServingClient client = new DataServingClient();
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8500), 0);
         HttpContext eventsContext = server.createContext("/");
-        eventsContext.setHandler(BasicHttpServerExample::handleRequest);
+        eventsContext.setHandler(DataServingApi::handleRequest);
         server.start();
     }
 

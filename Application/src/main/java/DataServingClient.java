@@ -7,7 +7,7 @@ import com.mongodb.util.JSON;
 
 import java.util.*;
 
-public class UserDataClient {
+public class DataServingClient {
     /*
         Singleton Mongo client for UserData database
      */
