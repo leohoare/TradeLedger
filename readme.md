@@ -4,6 +4,7 @@ Running
 1. ./InitialiseDatabase
 
 Runs a docker mongodb docker container on 27777 and injects data from ./sample-data/*
+
 2. ./Application/gradlew bootRun
 
 Runs service on port 8500
