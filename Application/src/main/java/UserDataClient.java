@@ -50,7 +50,7 @@ public class UserDataClient {
     public MongoClient GetClient() {
         if (client == null) {
             client = new MongoClient("localhost", 27777);
-            userData = client.getDB("UserData");
+            userData = client.getDB("AppropriateDatabaseName");
             return client;
         }
         else {
