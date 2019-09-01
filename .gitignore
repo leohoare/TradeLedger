@@ -1,0 +1,4 @@
+Application/build/*
+Application/.gradle/*
+Application/.DS_Store/*
+Application/.idea/*

@@ -1,0 +1,58 @@
+[
+    {
+        "_id": "507f191e810c19729de8aae0",
+        "type": "LOGIN",
+        "time": 1262340660000,
+        "user": "user1@sample.io",
+        "ip": "192.168.1.10"
+    },
+    {
+        "_id": "507f191e810c19729de8aae1",
+        "type": "LOGIN",
+        "time": 1262427060000,
+        "user": "user2@sample.io",
+        "ip": "192.168.1.11"
+    },
+    {
+        "_id": "507f191e810c19729de8aae2",
+        "type": "LOGIN",
+        "time": 1262513460000,
+        "user": "user3@sample.io",
+        "ip": "192.168.1.11"
+    },
+    {
+        "_id": "507f191e810c19729de8aae3",
+        "type": "LOGIN",
+        "time": 1262599860000,
+        "user": "user4@sample.io",
+        "ip": "192.168.1.13"
+    },
+    {
+        "_id": "507f191e810c19729de8aae4",
+        "type": "LOGOUT",
+        "time": 1262369460000,
+        "user": "user1@sample.io",
+        "ip": "192.168.1.10"
+    },
+    {
+        "_id": "507f191e810c19729de8aae5",
+        "type": "LOGOUT",
+        "time": 1262455860000,
+        "user": "user2@sample.io",
+        "ip": "192.168.1.11"
+    },
+    {
+        "_id": "507f191e810c19729de8aae6",
+        "type": "LOGOUT",
+        "time": 1262542260000,
+        "user": "user3@sample.io",
+        "ip": "192.168.1.11"
+    },
+    {
+        "_id": "507f191e810c19729de8aae7",
+        "type": "LOGOUT",
+        "time": 1262628660000,
+        "user": "user4@sample.io",
+        "ip": "192.168.1.13"
+    }
+]

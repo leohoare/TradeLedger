@@ -1,0 +1,22 @@
+[
+    {
+        "_id": "507f191e810c19729de860e0",
+        "user": "user1@sample.io",
+        "workstation": "192.168.1.10"
+    },
+    {
+        "_id": "507f191e810c19729de860e1",
+        "user": "user2@sample.io",
+        "workstation": "192.168.1.11"
+    },
+    {
+        "_id": "507f191e810c19729de860e2",
+        "user": "user3@sample.io",
+        "workstation": "192.168.1.12"
+    },
+    {
+        "_id": "507f191e810c19729de860e3",
+        "user": "user4@sample.io",
+        "workstation": "192.168.1.13"
+    }
+]
