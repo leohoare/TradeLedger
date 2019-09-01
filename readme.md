@@ -2,9 +2,9 @@ Given it's my first usage of java outside of algorithmic problems / base functio
 
 Running
 1. ./InitialiseDatabase
-    Runs a docker mongodb docker container on 27777 and injects data from ./sample-data/*
+Runs a docker mongodb docker container on 27777 and injects data from ./sample-data/*
 2. ./Application/gradlew bootRun
-    Runs service on port 8500
+Runs service on port 8500
 
 Improvemnets
 1. Apply MongoDb filters correctly.
