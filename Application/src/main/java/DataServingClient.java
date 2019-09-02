@@ -1,62 +1,75 @@
 import Objects.FilterObject;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
+import org.bson.conversions.Bson;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static com.mongodb.client.model.Filters.*;
 
 public class DataServingClient {
     /*
         Singleton Mongo client for UserData database
      */
     private MongoClient client = null;
-    private DB userData = null;
-    private Map<String, DBCollection> collectionLookup = new HashMap<String, DBCollection>();
+    private MongoDatabase userData = null;
+    private Map<String, MongoCollection> collectionLookup = new HashMap<String, MongoCollection>();
 
     public String QueryDatabase(String collectionName, List<FilterObject> filtersList) {
         GetClient();
-        BasicDBObject searchQuery = GetSearchQuery(filtersList);
-        if (!collectionLookup.containsKey(collectionName)) {
-            collectionLookup.put(collectionName, userData.getCollection(collectionName));
-        }
-        DBCollection dbCollection = collectionLookup.get(collectionName);
+        MongoCollection dbCollection = GetCollection(collectionName);
+        // return if no filters
+        if (filtersList.isEmpty()) return JSON.serialize(dbCollection.find());
+        // else create search filter
+        Bson searchQuery = GetSearchQuery(filtersList);
         return JSON.serialize(dbCollection.find(searchQuery));
     }
 
-    public BasicDBObject GetSearchQuery(List<FilterObject> filtersList) {
-        // Incorrect -> should be using MongoDb Filters
-        BasicDBObject searchQuery = new BasicDBObject();
+    private Bson GetSearchQuery(List<FilterObject> filtersList) {
+        List<Bson> searchQuery = new ArrayList<>();
         for (FilterObject filter : filtersList) {
-            /*
-                Two types queries :
-                    1. gte/lte a specified value where range isn't allowed
-                    2. eq a specified value xor range.
-             */
             if (filter.operator.equals("eq")) {
                 if ( filter.value != null) {
-                    // needs rework currently aggregates matches rather than filters
-                    // Exact eq match - hack ~ time is only long data type - solved with object relation mapping
-                    searchQuery.put(filter.attribute, filter.attribute.equals("time") ? new Long(filter.value) : filter.value);
+                    // exact value match case
+                    searchQuery.add(eq(filter.attribute, IsLong(filter.value) ? new Long(filter.value) : filter.value));
                 } else {
-                    // Range Query
+                    // range case
+                    searchQuery.add(and(gte(filter.attribute, IsLong(filter.range.from) ? new Long(filter.range.from) : filter.range.from),
+                        lte(filter.attribute, IsLong(filter.range.to) ? new Long(filter.range.to) : filter.range.to)));
                 }
             } else {
-                // gte & lte
+                // gte or lte case
+                searchQuery.add(filter.operator.equals("gte") ?
+                    gte(filter.attribute, IsLong(filter.value) ? new Long(filter.value) : filter.value):
+                    lte(filter.attribute, IsLong(filter.value) ? new Long(filter.value) : filter.value));
             }
         }
-        return searchQuery;
+        return and(searchQuery);
     }
 
-    public MongoClient GetClient() {
-        if (client == null) {
-            client = new MongoClient("localhost", 27777);
-            userData = client.getDB("AppropriateDatabaseName");
-            return client;
+    private MongoCollection GetCollection(String collectionName) {
+        if (!collectionLookup.containsKey(collectionName)) {
+            collectionLookup.put(collectionName, userData.getCollection(collectionName));
         }
-        else {
-            return client;
-        }
+        return collectionLookup.get(collectionName);
+    }
+
+    // Not the best method ~ slow performance on regex
+    private Boolean IsLong(String str) {
+        return Pattern.matches("^-?[0-9]+$", str);
+    }
+
+    // Singleton client initiated on first request
+    private MongoClient GetClient() {
+        if ( client != null ) return client;
+        client = new MongoClient("localhost", 27777);
+        userData = client.getDatabase("AppropriateDatabaseName");
+        return client;
     }
 }

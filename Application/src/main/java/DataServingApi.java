@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,49 +29,54 @@ public class DataServingApi {
         URI uri = exchange.getRequestURI();
         String[] pathSections = uri.getPath().split("/");
         if (pathSections.length > 2 && pathSections[2].equals("search")) {
-            // Loop through all query strings matching filter
-            for (String filterQuery : Arrays.asList(uri.getQuery().split("&"))) {
-                Matcher matcher = Pattern.compile("^filter=(.*)").matcher(filterQuery);
-                if (matcher.matches()) {
-                    List<FilterObject> filters = new ArrayList<FilterObject>();
-                    try {
-                        // Extract matched filter from query string
-                        FilterObject filter = objectMapper.readValue(matcher.group(1),FilterObject.class);
-                        /*
-                            Two types queries :
-                                1. gte/lte a specified value where range isn't allowed
-                                2. eq a specified value xor range.
-                         */
-                        if (filter.attribute != null &&
-                                ((filter.operator.equals("gte") || filter.operator.equals("lte"))
-                                    && filter.value != null
-                                    && filter.range == null)
-                                || (filter.operator.equals("eq")
-                                    && (filter.value != null ^ filter.range != null))) {
-                            filters.add(filter);
-                        } else {
-                            // Passing error in query filter string
-                            throw new IOException();
+            List<FilterObject> filters = new ArrayList<FilterObject>();
+            String queries = uri.getQuery();
+            if (queries != null) {
+                // Loop through all query strings matching filter
+                for (String filterQuery : queries.split("&")) {
+                    Matcher matcher = Pattern.compile("^filter=(.*)").matcher(filterQuery);
+                    if (matcher.matches()) {
+                        try {
+                            // Extract matched filter from query string
+                            FilterObject filter = objectMapper.readValue(matcher.group(1), FilterObject.class);
+                            /*
+                                Two types queries :
+                                    1. operator = gte/lte and a specified value where range isn't allowed
+                                    2. operator = eq and a specified value xor range.
+                             */
+                            if (filter.attribute != null &&
+                                    ((filter.operator.equals("gte") || filter.operator.equals("lte"))
+                                        && filter.value != null
+                                        && filter.range == null)
+                                    || (filter.operator.equals("eq")
+                                        && (filter.value != null ^ filter.range != null))) {
+                                filters.add(filter);
+                            } else {
+                                // Filter has validation has failed
+                                HandleExchange(exchange, 400, "Incorrect filter validation","text/plain");
+
+                            }
+                        } catch (IOException e) {
+                            // Filter has failed to pass
+                            HandleExchange(exchange, 400, "Incorrect passing of filter","text/plain");
                         }
-                    } catch (IOException e) {
-                        String response = "Incorrect passing of filter and validation";
-                        exchange.sendResponseHeaders(400, response.getBytes().length);
-                        OutputStream os = exchange.getResponseBody();
-                        os.write(response.getBytes());
-                        os.close();
-                        return;
                     }
-                    // Passed all validation errors, search database
-                    String response = client.QueryDatabase(pathSections[1], filters);
-                    exchange.getResponseHeaders().set("Content-Type", "application/json");
-                    exchange.sendResponseHeaders(200, response.getBytes().length);
-                    OutputStream os = exchange.getResponseBody();
-                    os.write(response.getBytes());
-                    os.close();
-                    return;
                 }
             }
+            // Passed all validation errors, search database
+            HandleExchange(exchange, 200, client.QueryDatabase(pathSections[1], filters), "application/json");
         }
+        // Attempting unrecognised path
+        HandleExchange(exchange, 404, "Resource not found", "text/plain");
+    }
+
+    private static void HandleExchange(HttpExchange exchange, int StatusCode, String response, String contentType) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", contentType);
+        exchange.sendResponseHeaders(StatusCode, response.getBytes().length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+        return;
     }
 }
 

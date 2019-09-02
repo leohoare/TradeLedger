@@ -6,8 +6,3 @@ public class FilterObject {
     public String value;
     public RangeObject range;
 }
-
-class RangeObject {
-    public String from;
-    public String to;
-}

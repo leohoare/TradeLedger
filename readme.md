@@ -10,11 +10,10 @@ Runs a docker mongodb docker container on 27777 and injects data from ./sample-d
 Runs service on port 8500
 
 Improvemnets
-1. Apply MongoDb filters correctly.
+1. Apply MongoDb filters correctly -> currently filtering by IP doesn't work correctly. It's likely if you wanted this functionality you'd need to pass the IP addresses (haven't heavily researched).
 2. Testing
-3. Improved error handling for example MongoDb client doens't connect
-4. Documnent API using swagger
-5. Seperate API into multiple, Data Access Layer (with entity), Business Layer / passing and Handler/Controller.
+3. Improved error handling for example MongoDb client connection refused
+5. Layer API into Data Access Layer (with entity?), Business Layer / passing and Handler/Controller.
 6. API not routed correctly, currently supports all HTTP operations not just get.
 
 Decision needs to be made if API is generic and designed to feed data directly through API or if structure is enforced through ORM. Currently just fed from database straight back to API. This would allow for passing and appropriately dealing with data for example IP could be stored as unsigned int and passed back through to allow for easier query filtering. 
